@@ -1,0 +1,93 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZFI_R115_DATA
+*&---------------------------------------------------------------------*
+
+TABLES : ZSM_STDNT_SEARCH, ZFI_STR_R115.
+
+DATA : GT_DATA TYPE TABLE OF ZFI_STR_R115,
+       GS_DATA LIKE LINE  OF GT_DATA.
+
+TYPES : BEGIN OF LTY_PESIN_ERKEN,
+          ERKEN_NORMAL(1),
+          TAKSIT_PESIN(2),
+          DATUM           TYPE DATUM,
+          UZEIT           TYPE UZEIT,
+        END OF LTY_PESIN_ERKEN.
+
+TYPES : BEGIN OF LTY_PAYU,
+          STOBJID     TYPE PIQST_OBJID,
+          STUDENT_NO  TYPE PIQSTUDENT12,
+          AMOUNT      TYPE BETRW_KK,
+          WAERS       TYPE WAERS,
+          PERSL       TYPE PERSL_KK,
+          KAYIT_TIPI  TYPE PIQFEECALCMODE,
+          PESINTAKSIT TYPE ZCAD_PAYU_PSNTK,
+          INDIRIM_TUR TYPE ZCAD_TUR,
+          UDATE       TYPE DATUM,
+          UZEIT       TYPE UZEIT,
+        END OF LTY_PAYU.
+
+DATA : LT_PAYU TYPE TABLE OF LTY_PAYU.
+
+TYPES : BEGIN OF LTY_HAVALE ,
+          GPART       TYPE GPART_KK,
+          PERSL       TYPE PERSL_KK,
+          FEECALCMODE TYPE PIQFEECALCMODE,
+          PESINTAKSIT TYPE ZCAD_PSNTKST,
+          TUR         TYPE ZCAD_TUR,
+          BETRW       TYPE BETRW_KK,
+          WAERS       TYPE WAERS,
+          SILME       TYPE ZCAD_SILINDI,
+          PROGRAMID   TYPE ZCAD_PROGRAM,
+          OPBEL       TYPE OPBEL_KK,
+          DATUM       TYPE DATUM,
+          UZEIT       TYPE UZEIT,
+        END OF LTY_HAVALE.
+DATA : LT_HAVALE TYPE TABLE OF LTY_HAVALE.
+
+TYPES : BEGIN OF LTY_HEAD,
+          THSLTNO       TYPE ZCAD_THSLT,
+          OGRNO         TYPE PIQSTUDENT12,
+          DONEM         TYPE PERSL_KK,
+          GTUTAR        TYPE ZCAD_TUTAR,
+          PBIRIM        TYPE WAERS,
+          PROGRAMID     TYPE ZCAD_PROGRAM,
+          DOCNO         TYPE OPBEL_KK,
+          KIP           TYPE PIQFEECALCMODE,
+          PESINTAKSIT   TYPE ZCAD_PSNTKST,
+          TUR           TYPE ZCAD_TUR,
+          PROGRAM_TUTAR TYPE ZCAD_TUTAR,
+          KAYITTRH      TYPE DATUM,
+          KAYITSAAT     TYPE UZEIT,
+          MUHASEBE      TYPE ZCAD_MUHASEBE,
+        END OF LTY_HEAD.
+
+DATA : LT_SUBHEAD TYPE TABLE OF LTY_HEAD.
+*&==================== ALV DATA GRID VE LIST ==========================*
+
+TYPE-POOLS : SLIS.
+
+DATA : GT_FIELDCAT TYPE SLIS_T_FIELDCAT_ALV,
+       GS_VARIANT  TYPE DISVARIANT,
+       GS_LAYOUT   TYPE SLIS_LAYOUT_ALV,
+       GS_FIELDCAT TYPE SLIS_FIELDCAT_ALV.
+
+DATA : GT_SORT TYPE  SLIS_T_SORTINFO_ALV,
+       GS_SORT LIKE LINE OF GT_SORT.
+
+*&=====================================================================*
+DATA : GV_IKINCI_TAHAKKUK  TYPE CMAC_DOCAMT,
+       GV_BIRINCI_TAHAKKUK TYPE CMAC_DOCAMT,
+       GV_IKINCI_WAERS     TYPE CMAC_DOCCURR.
+
+TYPES : BEGIN OF LTY_IKINCI,
+          STUDENT12     TYPE PIQSTUDENT12,
+          GIRIS_BELGENO TYPE ZCAD_GRSBELGE,
+          PESINODEME    TYPE ZCAD_PESINODEME,
+          PESIN_TUTAR   TYPE ZCAD_PESININDIRIM,
+          PARA_BIRIMI   TYPE ZCAD_WAERS,
+          THSLT_KTARIH  TYPE ZCAD_THSLT_KTARIH,
+          UZEIT         TYPE UZEIT,
+        END OF LTY_IKINCI.
+
+DATA : LT_IKINCI TYPE TABLE OF LTY_IKINCI.

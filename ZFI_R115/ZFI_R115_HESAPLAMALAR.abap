@@ -1,0 +1,299 @@
+*&=====================================================================*
+*&  Include           ZFI_R115_HESAPLAMALAR
+*&=====================================================================*
+*&=====================================================================*
+*& PAYU HESAPLAMASI
+*&=====================================================================*
+FORM PAYU USING LV_UHTUTAR TYPE CMAC_DOCAMT
+                LV_UHWAERS TYPE CMAC_DOCCURR
+                LT_PAYU
+       CHANGING LV_TUTAR   TYPE BETRW_KK
+                LV_WAERS   TYPE WAERS.
+
+  DATA : LT_PAYU_H TYPE TABLE OF LTY_PAYU.
+  MOVE-CORRESPONDING LT_PAYU TO LT_PAYU_H.
+  " TOPLAM ÖDEME MÝKTARI PAYU ÝLE
+  LV_TUTAR = 0.
+
+  LOOP AT LT_PAYU_H INTO DATA(LS_PAYU).
+    LV_WAERS = LS_PAYU-WAERS.
+
+    IF LV_UHWAERS EQ LS_PAYU-WAERS.
+
+      LV_TUTAR = LS_PAYU-AMOUNT + LV_TUTAR.
+
+    ELSE.
+
+      DATA : LV_GDATU TYPE GDATU_INV,
+             LV_UKURS TYPE UKURS_CURR.
+      CONVERT DATE LS_PAYU-UDATE INTO INVERTED-DATE LV_GDATU.
+      SELECT SINGLE UKURS
+        INTO LV_UKURS
+        FROM TCURR
+        WHERE FCURR EQ LS_PAYU-WAERS
+          AND TCURR EQ LV_UHWAERS
+          AND GDATU EQ LV_GDATU
+          AND KURST EQ 'M'.
+
+      LV_TUTAR = ABS( LS_PAYU-AMOUNT ) * LV_UKURS.
+
+    ENDIF.
+  ENDLOOP.
+ENDFORM.
+*&=====================================================================*
+*& HAVALE HESAPLAMASI
+*&=====================================================================*
+FORM HAVALE USING LV_UHTUTAR TYPE CMAC_DOCAMT
+                  LV_UHWAERS TYPE CMAC_DOCCURR
+                  LT_HAVALE
+         CHANGING LV_TUTAR   TYPE BETRW_KK
+                  LV_WAERS   TYPE WAERS.
+
+  DATA : LT_HAVALE_H TYPE TABLE OF LTY_HAVALE.
+  MOVE-CORRESPONDING LT_HAVALE TO LT_HAVALE_H.
+  " TOPLAM ÖDEME MÝKTARI PAYU ÝLE
+  LV_TUTAR = 0.
+
+  LOOP AT LT_HAVALE_H INTO DATA(LS_HAVALE).
+    LV_WAERS = LS_HAVALE-WAERS.
+
+    IF LV_UHWAERS EQ LS_HAVALE-WAERS.
+      LV_TUTAR = LS_HAVALE-BETRW + LV_TUTAR.
+    ELSE.
+      DATA : LV_GDATU TYPE GDATU_INV,
+             LV_UKURS TYPE UKURS_CURR.
+      CONVERT DATE LS_HAVALE-DATUM INTO INVERTED-DATE LV_GDATU.
+      SELECT SINGLE UKURS
+        INTO LV_UKURS
+        FROM TCURR
+        WHERE FCURR EQ LS_HAVALE-WAERS
+          AND TCURR EQ LV_UHWAERS
+          AND GDATU EQ LV_GDATU
+          AND KURST EQ 'M'.
+
+      LV_TUTAR = ABS( LS_HAVALE-BETRW ) * LV_UKURS.
+
+    ENDIF.
+
+  ENDLOOP.
+
+ENDFORM.
+*&=====================================================================*
+*& HEAD TABLOSU HESAPLAMASI
+*&=====================================================================*
+FORM MAILHEAD USING LV_UHTUTAR TYPE CMAC_DOCAMT
+                LV_UHWAERS TYPE CMAC_DOCCURR
+                LT_SUBHEAD
+       CHANGING LV_TUTAR TYPE BETRW_KK
+                LV_WAERS TYPE WAERS.
+
+  DATA : LT_MAILHEAD_H TYPE TABLE OF LTY_HEAD.
+  MOVE-CORRESPONDING LT_SUBHEAD TO LT_MAILHEAD_H.
+  " TOPLAM ÖDEME MÝKTARI PAYU ÝLE
+  LV_TUTAR = 0.
+
+  LOOP AT LT_MAILHEAD_H INTO DATA(LS_MAILHEAD).
+    LV_WAERS = LS_MAILHEAD-PBIRIM.
+
+    IF LV_UHWAERS EQ LS_MAILHEAD-PBIRIM.
+
+      LV_TUTAR = LS_MAILHEAD-GTUTAR + LV_TUTAR.
+
+    ELSE.
+
+      DATA : LV_GDATU TYPE GDATU_INV,
+             LV_UKURS TYPE UKURS_CURR.
+
+      CONVERT DATE LS_MAILHEAD-KAYITTRH INTO INVERTED-DATE LV_GDATU.
+
+      SELECT SINGLE UKURS
+        INTO LV_UKURS
+        FROM TCURR
+        WHERE FCURR EQ LS_MAILHEAD-PBIRIM
+          AND TCURR EQ LV_UHWAERS
+          AND GDATU EQ LV_GDATU
+          AND KURST EQ 'M'.
+
+      LV_TUTAR = ABS( LS_MAILHEAD-GTUTAR ) * LV_UKURS.
+
+    ENDIF.
+
+  ENDLOOP.
+
+ENDFORM.
+*&=====================================================================*
+*& KREDI HEAD TABLOSU HESAPLAMASI
+*&=====================================================================*
+FORM KREDIHEAD
+          USING LV_UHTUTAR TYPE CMAC_DOCAMT
+                LV_UHWAERS TYPE CMAC_DOCCURR
+                LT_SUBHEAD
+       CHANGING LV_TUTAR TYPE BETRW_KK
+                LV_WAERS TYPE WAERS.
+
+  DATA : LT_KREDIHEAD_H TYPE TABLE OF LTY_HEAD.
+  MOVE-CORRESPONDING LT_SUBHEAD TO LT_KREDIHEAD_H.
+  " TOPLAM ÖDEME MÝKTARI PAYU ÝLE
+  LV_TUTAR = 0.
+
+  LOOP AT LT_KREDIHEAD_H INTO DATA(LS_KREDIHEAD).
+    LV_WAERS = LS_KREDIHEAD-PBIRIM.
+
+    IF LV_UHWAERS EQ LS_KREDIHEAD-PBIRIM.
+
+      LV_TUTAR = LS_KREDIHEAD-GTUTAR + LV_TUTAR.
+
+    ELSE.
+
+      DATA : LV_GDATU TYPE GDATU_INV,
+             LV_UKURS TYPE UKURS_CURR.
+
+      CONVERT DATE LS_KREDIHEAD-KAYITTRH INTO INVERTED-DATE LV_GDATU.
+
+      SELECT SINGLE UKURS
+        INTO LV_UKURS
+        FROM TCURR
+        WHERE FCURR EQ LS_KREDIHEAD-PBIRIM
+          AND TCURR EQ LV_UHWAERS
+          AND GDATU EQ LV_GDATU
+          AND KURST EQ 'M'.
+
+      LV_TUTAR = ABS( LS_KREDIHEAD-GTUTAR ) * LV_UKURS.
+
+    ENDIF.
+
+  ENDLOOP.
+
+ENDFORM.
+*&=====================================================================*
+*& CEK HEAD TABLOSU HESAPLAMASI
+*&=====================================================================*
+FORM CEKHEAD
+          USING LV_UHTUTAR TYPE CMAC_DOCAMT
+                LV_UHWAERS TYPE CMAC_DOCCURR
+                LT_SUBHEAD
+       CHANGING LV_TUTAR TYPE BETRW_KK
+                LV_WAERS TYPE WAERS.
+
+  DATA : LT_CEKHEAD_H TYPE TABLE OF LTY_HEAD.
+  MOVE-CORRESPONDING LT_SUBHEAD TO LT_CEKHEAD_H.
+  " TOPLAM ÖDEME MÝKTARI PAYU ÝLE
+  LV_TUTAR = 0.
+*&=====================================================================*
+  LOOP AT LT_CEKHEAD_H INTO DATA(LS_CEKHEAD).
+    LV_WAERS = LS_CEKHEAD-PBIRIM.
+
+    IF LV_UHWAERS EQ LS_CEKHEAD-PBIRIM.
+
+      LV_TUTAR = LS_CEKHEAD-GTUTAR + LV_TUTAR.
+
+    ELSE.
+
+      DATA : LV_GDATU TYPE GDATU_INV,
+             LV_UKURS TYPE UKURS_CURR.
+
+      CONVERT DATE LS_CEKHEAD-KAYITTRH INTO INVERTED-DATE LV_GDATU.
+
+      SELECT SINGLE UKURS
+        INTO LV_UKURS
+        FROM TCURR
+        WHERE FCURR EQ LS_CEKHEAD-PBIRIM
+          AND TCURR EQ LV_UHWAERS
+          AND GDATU EQ LV_GDATU
+          AND KURST EQ 'M'.
+
+      LV_TUTAR = ABS( LS_CEKHEAD-GTUTAR ) * LV_UKURS.
+
+    ENDIF.
+
+  ENDLOOP.
+
+ENDFORM.
+*&=====================================================================*
+*& SENET HEAD TABLOSU HESAPLAMASI
+*&=====================================================================*
+FORM SENETHEAD
+          USING LV_UHTUTAR TYPE CMAC_DOCAMT
+                LV_UHWAERS TYPE CMAC_DOCCURR
+                LT_SUBHEAD
+       CHANGING LV_TUTAR TYPE BETRW_KK
+                LV_WAERS TYPE WAERS.
+
+  DATA : LT_SENETHEAD_H TYPE TABLE OF LTY_HEAD.
+  MOVE-CORRESPONDING LT_SUBHEAD TO LT_SENETHEAD_H.
+  " TOPLAM ÖDEME MÝKTARI PAYU ÝLE
+  LV_TUTAR = 0.
+
+  LOOP AT LT_SENETHEAD_H INTO DATA(LS_SENETHEAD).
+    LV_WAERS = LS_SENETHEAD-PBIRIM.
+
+    IF LV_UHWAERS EQ LS_SENETHEAD-PBIRIM.
+
+      LV_TUTAR = LS_SENETHEAD-GTUTAR + LV_TUTAR.
+
+    ELSE.
+
+      DATA : LV_GDATU TYPE GDATU_INV,
+             LV_UKURS TYPE UKURS_CURR.
+
+      CONVERT DATE LS_SENETHEAD-KAYITTRH INTO INVERTED-DATE LV_GDATU.
+
+      SELECT SINGLE UKURS
+        INTO LV_UKURS
+        FROM TCURR
+        WHERE FCURR EQ LS_SENETHEAD-PBIRIM
+          AND TCURR EQ LV_UHWAERS
+          AND GDATU EQ LV_GDATU
+          AND KURST EQ 'M'.
+
+      LV_TUTAR = ABS( LS_SENETHEAD-GTUTAR ) * LV_UKURS.
+
+    ENDIF.
+
+  ENDLOOP.
+
+ENDFORM.
+*&=====================================================================*
+*& ÝKÝNCÝ TAKSÝT TABLOSU HESAPLAMASI
+*&=====================================================================*
+FORM IKINCI
+          USING LV_UHTUTAR TYPE CMAC_DOCAMT
+                LV_UHWAERS TYPE CMAC_DOCCURR
+                LT_IKINCI
+       CHANGING LV_TUTAR TYPE BETRW_KK
+                LV_WAERS TYPE WAERS.
+
+  DATA : LT_IKINCI_SUB TYPE TABLE OF LTY_IKINCI.
+  MOVE-CORRESPONDING LT_IKINCI TO LT_IKINCI_SUB.
+  " TOPLAM ÖDEME MÝKTARI PAYU ÝLE
+  LV_TUTAR = 0.
+
+  LOOP AT LT_IKINCI_SUB INTO DATA(LS_IKINCI).
+    LV_WAERS = LS_IKINCI-PARA_BIRIMI.
+
+    IF LV_UHWAERS EQ LS_IKINCI-PARA_BIRIMI.
+
+      LV_TUTAR = LS_IKINCI-PESIN_TUTAR + LV_TUTAR.
+
+    ELSE.
+
+      DATA : LV_GDATU TYPE GDATU_INV,
+             LV_UKURS TYPE UKURS_CURR.
+
+      CONVERT DATE LS_IKINCI-THSLT_KTARIH INTO INVERTED-DATE LV_GDATU.
+
+      SELECT SINGLE UKURS
+        INTO LV_UKURS
+        FROM TCURR
+        WHERE FCURR EQ LS_IKINCI-PARA_BIRIMI
+          AND TCURR EQ LV_UHWAERS
+          AND GDATU EQ LV_GDATU
+          AND KURST EQ 'M'.
+
+      LV_TUTAR = ABS( LS_IKINCI-PESIN_TUTAR ) * LV_UKURS.
+
+    ENDIF.
+
+  ENDLOOP.
+
+ENDFORM.
